@@ -1,0 +1,56 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Scene Cache",
+        "description": "Dynamically created scenes (via `scene.create`) are cached and restored across Home Assistant restarts."
+      }
+    },
+    "abort": {
+      "already_configured": "Scene Cache is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Scene Cache",
+        "description": "Choose whether to include or exclude specific scenes. Include without patterns caches nothing; exclude without patterns caches everything.",
+        "data": {
+          "filter_mode": "Filter mode",
+          "patterns": "Pattern"
+        },
+        "data_description": {
+          "patterns": "Wildcards are supported, e.g. `scene.living_room_*` or `*night*`."
+        }
+      }
+    }
+  },
+  "selector": {
+    "filter_mode": {
+      "options": {
+        "include": "Only cache matching scenes (include)",
+        "exclude": "Exclude matching scenes (exclude)"
+      }
+    }
+  },
+  "services": {
+    "forget": {
+      "name": "Forget scene",
+      "description": "Removes a single scene from the cache.",
+      "fields": {
+        "scene_id": {
+          "name": "Scene ID",
+          "description": "The ID of the scene (with or without leading \"scene.\")."
+        }
+      }
+    },
+    "clear": {
+      "name": "Clear cache",
+      "description": "Removes all cached scenes."
+    },
+    "list": {
+      "name": "List cache",
+      "description": "Returns all cached scenes with their entity states."
+    }
+  }
+}

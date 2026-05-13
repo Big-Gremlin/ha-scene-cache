@@ -1,0 +1,19 @@
+forget:
+  name: Szene vergessen
+  description: Entfernt eine einzelne Szene aus dem Cache.
+  fields:
+    scene_id:
+      name: Scene ID
+      description: Die ID der Szene (mit oder ohne führendem "scene.").
+      required: true
+      example: party_modus
+      selector:
+        text:
+
+clear:
+  name: Cache leeren
+  description: Entfernt alle gecachten Szenen.
+
+list:
+  name: Cache anzeigen
+  description: Gibt alle gecachten Szenen mit ihren Entity-Zuständen zurück.

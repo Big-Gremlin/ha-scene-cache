@@ -1,0 +1,56 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Scene Cache",
+        "description": "Dynamisch erzeugte Szenen (über `scene.create`) werden über Neustarts von Home Assistant hinweg gecacht und wiederhergestellt."
+      }
+    },
+    "abort": {
+      "already_configured": "Scene Cache ist bereits eingerichtet."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Scene Cache",
+        "description": "Wähle, ob bestimmte Szenen ein- oder ausgeschlossen werden sollen. Bei Include ohne Pattern wird nichts gecacht, bei Exclude ohne Pattern wird alles gecacht.",
+        "data": {
+          "filter_mode": "Filter-Modus",
+          "patterns": "Pattern"
+        },
+        "data_description": {
+          "patterns": "Wildcards erlaubt, z.B. `scene.wohnzimmer_*` oder `*nacht*`."
+        }
+      }
+    }
+  },
+  "selector": {
+    "filter_mode": {
+      "options": {
+        "include": "Nur passende Szenen cachen (Include)",
+        "exclude": "Passende Szenen ausschließen (Exclude)"
+      }
+    }
+  },
+  "services": {
+    "forget": {
+      "name": "Szene vergessen",
+      "description": "Entfernt eine einzelne Szene aus dem Cache.",
+      "fields": {
+        "scene_id": {
+          "name": "Scene ID",
+          "description": "Die ID der Szene (mit oder ohne führendem \"scene.\")."
+        }
+      }
+    },
+    "clear": {
+      "name": "Cache leeren",
+      "description": "Entfernt alle gecachten Szenen."
+    },
+    "list": {
+      "name": "Cache anzeigen",
+      "description": "Gibt alle gecachten Szenen mit ihren Entity-Zuständen zurück."
+    }
+  }
+}
