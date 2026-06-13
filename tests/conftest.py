@@ -7,6 +7,12 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.scene_cache.const import DOMAIN, FILTER_MODE_EXCLUDE
 
 
+@pytest.fixture(autouse=True)
+def auto_enable_custom_integrations(enable_custom_integrations):
+    """Make Home Assistant load components from custom_components/ in tests."""
+    yield
+
+
 @pytest.fixture
 def entry(hass):
     """Config entry with default 'cache everything' options."""

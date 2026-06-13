@@ -53,7 +53,7 @@ class TestConfigFlow:
             DOMAIN, context={"source": config_entries.SOURCE_USER}
         )
         assert result["type"] == FlowResultType.ABORT
-        assert result["reason"] == "already_configured"
+        assert result["reason"] == "single_instance_allowed"
 
 
 # ---------------------------------------------------------------------------
@@ -94,8 +94,7 @@ class TestOptionsFlow:
         assert entry.options["filter_mode"] == FILTER_MODE_EXCLUDE
         assert entry.options["patterns"] == ["scene.tmp_*", "scene.test_*"]
 
-    async def test_saves_include_mode_with_string_patterns(self, hass: HomeAssistant):
-        """Patterns provided as comma-separated string (fallback path) are split."""
+    async def test_saves_include_mode_with_list_patterns(self, hass: HomeAssistant):
         entry = await self._create_and_setup(hass)
 
         result = await hass.config_entries.options.async_init(entry.entry_id)
@@ -103,7 +102,7 @@ class TestOptionsFlow:
             result["flow_id"],
             user_input={
                 "filter_mode": FILTER_MODE_INCLUDE,
-                "patterns": "scene.party_*, scene.movie",
+                "patterns": ["scene.party_*", "scene.movie"],
             },
         )
 
@@ -135,10 +134,11 @@ class TestOptionsFlow:
         """Changing options via the flow should call async_apply_filter on the coordinator."""
         entry = await self._create_and_setup(hass)
         coordinator = hass.data[DOMAIN][entry.entry_id]
-        coordinator._cached = {
+        coordinator._all_captured = {
             "tmp_scene": {"light.x": {"state": "on"}},
             "party": {"light.y": {"state": "off"}},
         }
+        coordinator._cached = dict(coordinator._all_captured)
 
         result = await hass.config_entries.options.async_init(entry.entry_id)
         await hass.config_entries.options.async_configure(

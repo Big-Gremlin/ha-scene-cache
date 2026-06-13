@@ -144,26 +144,22 @@ class TestRestore:
         }
         restore_calls = []
 
-        async def fake_service_call(domain, service, data=None, blocking=False, **kwargs):
-            restore_calls.append({"domain": domain, "service": service, "data": data})
+        async def capture_create(call):
+            restore_calls.append(call.data)
 
-        with patch("custom_components.scene_cache.Store") as MockStore:
+        hass.services.async_register("scene", "create", capture_create)
+
+        with patch("custom_components.scene_cache.coordinator.Store") as MockStore:
             store_inst = MagicMock()
             store_inst.async_load = AsyncMock(return_value=initial_cache)
             store_inst.async_delay_save = MagicMock()
             store_inst.async_save = AsyncMock()
             MockStore.return_value = store_inst
 
-            with patch.object(hass.services, "async_call", side_effect=fake_service_call):
-                await hass.config_entries.async_setup(entry.entry_id)
-                await hass.async_block_till_done()
+            await hass.config_entries.async_setup(entry.entry_id)
+            await hass.async_block_till_done()
 
-        assert any(
-            c["domain"] == "scene"
-            and c["service"] == "create"
-            and (c["data"] or {}).get("scene_id") == "party"
-            for c in restore_calls
-        )
+        assert any(c.get("scene_id") == "party" for c in restore_calls)
 
     async def test_restore_skips_already_existing_scene(self, hass: HomeAssistant, entry):
         initial_cache = {
@@ -173,27 +169,22 @@ class TestRestore:
 
         restore_calls = []
 
-        async def fake_service_call(domain, service, data=None, blocking=False, **kwargs):
-            restore_calls.append({"domain": domain, "service": service, "data": data})
+        async def capture_create(call):
+            restore_calls.append(call.data)
 
-        with patch("custom_components.scene_cache.Store") as MockStore:
+        hass.services.async_register("scene", "create", capture_create)
+
+        with patch("custom_components.scene_cache.coordinator.Store") as MockStore:
             store_inst = MagicMock()
             store_inst.async_load = AsyncMock(return_value=initial_cache)
             store_inst.async_delay_save = MagicMock()
             store_inst.async_save = AsyncMock()
             MockStore.return_value = store_inst
 
-            with patch.object(hass.services, "async_call", side_effect=fake_service_call):
-                await hass.config_entries.async_setup(entry.entry_id)
-                await hass.async_block_till_done()
+            await hass.config_entries.async_setup(entry.entry_id)
+            await hass.async_block_till_done()
 
-        scene_create_calls = [
-            c for c in restore_calls
-            if c["domain"] == "scene"
-            and c["service"] == "create"
-            and (c["data"] or {}).get("scene_id") == "party"
-        ]
-        assert scene_create_calls == []
+        assert not any(c.get("scene_id") == "party" for c in restore_calls)
 
     async def test_restore_skips_scene_that_fails_filter(self, hass: HomeAssistant):
         e = _entry_with_options(hass, FILTER_MODE_EXCLUDE, ["scene.tmp_*"])
@@ -205,25 +196,22 @@ class TestRestore:
         }
         restore_calls = []
 
-        async def fake_service_call(domain, service, data=None, blocking=False, **kwargs):
-            restore_calls.append({"domain": domain, "service": service, "data": data})
+        async def capture_create(call):
+            restore_calls.append(call.data)
 
-        with patch("custom_components.scene_cache.Store") as MockStore:
+        hass.services.async_register("scene", "create", capture_create)
+
+        with patch("custom_components.scene_cache.coordinator.Store") as MockStore:
             store_inst = MagicMock()
             store_inst.async_load = AsyncMock(return_value=initial_cache)
             store_inst.async_delay_save = MagicMock()
             store_inst.async_save = AsyncMock()
             MockStore.return_value = store_inst
 
-            with patch.object(hass.services, "async_call", side_effect=fake_service_call):
-                await hass.config_entries.async_setup(e.entry_id)
-                await hass.async_block_till_done()
+            await hass.config_entries.async_setup(e.entry_id)
+            await hass.async_block_till_done()
 
-        restored_ids = [
-            (c["data"] or {}).get("scene_id")
-            for c in restore_calls
-            if c["domain"] == "scene" and c["service"] == "create"
-        ]
+        restored_ids = [c.get("scene_id") for c in restore_calls]
         assert "tmp_foo" not in restored_ids
         assert "party" in restored_ids
 
@@ -235,28 +223,27 @@ class TestRestore:
 class TestApplyFilter:
     async def test_drops_entries_no_longer_matching(self, hass: HomeAssistant, entry):
         coordinator = await _setup(hass, entry)
-        coordinator._cached = {
+        coordinator._all_captured = {
             "tmp_test": {"light.x": {"state": "on"}},
             "party": {"light.y": {"state": "off"}},
         }
 
-        entry.options = {
-            "filter_mode": FILTER_MODE_EXCLUDE,
-            "patterns": ["scene.tmp_*"],
-        }
-        await coordinator.async_apply_filter()
+        hass.config_entries.async_update_entry(
+            entry,
+            options={"filter_mode": FILTER_MODE_EXCLUDE, "patterns": ["scene.tmp_*"]},
+        )
+        await hass.async_block_till_done()
 
         assert "tmp_test" not in coordinator._cached
         assert "party" in coordinator._cached
 
     async def test_no_change_when_all_match(self, hass: HomeAssistant, entry):
         coordinator = await _setup(hass, entry)
-        coordinator._cached = {"party": {"light.x": {"state": "on"}}}
-        original = dict(coordinator._cached)
+        coordinator._all_captured = {"party": {"light.x": {"state": "on"}}}
 
         await coordinator.async_apply_filter()
 
-        assert coordinator._cached == original
+        assert coordinator._cached == {"party": {"light.x": {"state": "on"}}}
 
 
 # ---------------------------------------------------------------------------
@@ -266,6 +253,7 @@ class TestApplyFilter:
 class TestServices:
     async def test_forget_removes_scene_by_bare_id(self, hass: HomeAssistant, entry):
         coordinator = await _setup(hass, entry)
+        coordinator._all_captured["party"] = {"light.x": {"state": "on"}}
         coordinator._cached["party"] = {"light.x": {"state": "on"}}
 
         await hass.services.async_call(
@@ -276,6 +264,7 @@ class TestServices:
 
     async def test_forget_accepts_full_entity_id(self, hass: HomeAssistant, entry):
         coordinator = await _setup(hass, entry)
+        coordinator._all_captured["movie"] = {"light.x": {"state": "on"}}
         coordinator._cached["movie"] = {"light.x": {"state": "on"}}
 
         await hass.services.async_call(
@@ -295,6 +284,7 @@ class TestServices:
 
     async def test_clear_empties_cache(self, hass: HomeAssistant, entry):
         coordinator = await _setup(hass, entry)
+        coordinator._all_captured = {"a": {}, "b": {}}
         coordinator._cached = {"a": {}, "b": {}}
 
         await hass.services.async_call(DOMAIN, "clear", {}, blocking=True)
@@ -460,11 +450,11 @@ class TestAllCaptured:
         }
 
         # Filter now excludes tmp_* → only party matches
-        entry.options = {
-            "filter_mode": FILTER_MODE_EXCLUDE,
-            "patterns": ["scene.tmp_*"],
-        }
-        await coordinator.async_apply_filter()
+        hass.config_entries.async_update_entry(
+            entry,
+            options={"filter_mode": FILTER_MODE_EXCLUDE, "patterns": ["scene.tmp_*"]},
+        )
+        await hass.async_block_till_done()
 
         assert "tmp_test" not in coordinator._cached
         assert "party" in coordinator._cached
