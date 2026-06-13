@@ -1,14 +1,14 @@
 {
   "domain": "scene_cache",
   "name": "Scene Cache",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "codeowners": [],
   "config_flow": true,
   "single_config_entry": true,
   "dependencies": ["scene"],
-  "documentation": "https://github.com/your-user/scene_cache",
+  "documentation": "https://github.com/Big-Gremlin/scene_cache",
   "integration_type": "service",
   "iot_class": "calculated",
-  "issue_tracker": "https://github.com/your-user/scene_cache/issues",
+  "issue_tracker": "https://github.com/Big-Gremlin/scene_cache/issues",
   "requirements": []
 }
