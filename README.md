@@ -18,9 +18,13 @@ automatically calls `scene.create` for each cached scene on the next startup.
 
 ### HACS (recommended)
 
-1. HACS → Integrations → ⋮ → *Custom repositories*
-2. Add the repository URL, category *Integration*
-3. Install *Scene Cache* and restart Home Assistant
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Big-Gremlin&repository=ha-scene-cache&category=integration)
+
+1. HACS → Integrations → ⋮ → _Custom repositories_
+2. Add the repository URL, category _Integration_
+3. Install _Scene Cache_ and restart Home Assistant
 
 ### Manual
 
@@ -29,17 +33,17 @@ your Home Assistant instance and restart HA.
 
 ## Setup
 
-*Settings* → *Devices & Services* → *Add integration* → **Scene Cache**.
+_Settings_ → _Devices & Services_ → _Add integration_ → **Scene Cache**.
 
-The integration can only be set up once. Use *Configure* to adjust the filter mode and
+The integration can only be set up once. Use _Configure_ to adjust the filter mode and
 patterns at any time.
 
 ### Filter modes
 
-| Mode      | No patterns         | With patterns                                              |
-|-----------|---------------------|------------------------------------------------------------|
-| `exclude` | All scenes cached (default) | All scenes cached except those matching a pattern  |
-| `include` | Nothing cached      | Only scenes whose `entity_id` matches a pattern are cached |
+| Mode      | No patterns                 | With patterns                                              |
+| --------- | --------------------------- | ---------------------------------------------------------- |
+| `exclude` | All scenes cached (default) | All scenes cached except those matching a pattern          |
+| `include` | Nothing cached              | Only scenes whose `entity_id` matches a pattern are cached |
 
 Patterns are glob expressions matched against the full `entity_id` (including the
 `scene.` prefix):
@@ -60,7 +64,7 @@ restart — it simply will not be restored afterwards.
 ```yaml
 service: scene_cache.forget
 data:
-  scene_id: party_mode    # with or without the "scene." prefix
+  scene_id: party_mode # with or without the "scene." prefix
 ```
 
 ### `scene_cache.clear`
@@ -75,7 +79,7 @@ service: scene_cache.clear
 
 Returns the active cache — all dynamic scenes that will be restored on the next
 startup (i.e. those that pass the current filter). Useful for inspecting the cache
-from Developer Tools (*Actions* tab) or from an automation via `response_variable`.
+from Developer Tools (_Actions_ tab) or from an automation via `response_variable`.
 
 ```yaml
 service: scene_cache.list
@@ -109,4 +113,10 @@ response_variable: cache
 
 ## License
 
-MIT
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+This project uses the MIT License, for more details see the [license document](LICENSE).
+
+---
+
+[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/biggremlin)
