@@ -6,14 +6,6 @@ Scenes created via `scene.create` are stored in memory only and lost on every HA
 `scene_cache` writes them to persistent storage (`.storage/scene_cache.scenes`) and
 automatically calls `scene.create` for each cached scene on the next startup.
 
-## Features
-
-- Stores every dynamically created scene in persistent storage
-- Restores scenes on HA startup
-- Per-instance filter mode: **Include** (allowlist) or **Exclude** (denylist)
-- Glob patterns, e.g. `scene.party_*`
-- Services for manual cleanup: `scene_cache.forget`, `scene_cache.clear`, `scene_cache.list`
-
 ## Installation
 
 ### HACS (recommended)
@@ -30,6 +22,14 @@ automatically calls `scene.create` for each cached scene on the next startup.
 
 Copy `custom_components/scene_cache/` into the `config/custom_components/` folder of
 your Home Assistant instance and restart HA.
+
+## Features
+
+- Stores every dynamically created scene in persistent storage
+- Restores scenes on HA startup
+- Per-instance filter mode: **Include** (allowlist) or **Exclude** (denylist)
+- Glob patterns, e.g. `scene.party_*`
+- Services for manual cleanup: `scene_cache.forget`, `scene_cache.clear`, `scene_cache.list`
 
 ## Setup
 
